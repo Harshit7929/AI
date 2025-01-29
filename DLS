@@ -1,0 +1,50 @@
+class Graph:
+    def __init__(self):
+        self.graph = {}
+        self.costs = {}  
+
+    def add_edge(self, u, v, cost):
+        if u not in self.graph:
+            self.graph[u] = []
+        self.graph[u].append(v)
+        self.costs[(u, v)] = cost  
+
+    def dls(self, node, depth, path, visited, total_cost):
+        print(f"Visiting Node: {node}, Depth: {depth}, Cost: {total_cost}")  
+        path.append((node, total_cost))  
+        visited.add(node)
+
+        if depth <= 0:
+            return
+
+        if node in self.graph:
+            for neighbor in self.graph[node]:
+                if neighbor not in visited:
+                    edge_cost = self.costs.get((node, neighbor), 0)  
+                    self.dls(neighbor, depth - 1, path, visited, total_cost + edge_cost)
+
+    def depth_limited_search(self, start, depth_limit):
+        visited = set()
+        path = []
+        self.dls(start, depth_limit, path, visited, 0)
+        return path  
+
+
+graph = Graph()
+edges = [
+    ('a', 'b', 9), ('a', 'c', 4), ('a', 'd', 7),
+    ('b', 'e', 11), ('c', 'e', 17), ('c', 'f', 12),
+    ('d', 'f', 14), ('e', 'z', 5), ('f', 'z', 9)
+]
+
+for u, v, cost in edges:
+    graph.add_edge(u, v, cost)
+
+start = 'a'
+depth_limit = 2
+
+visited_nodes = graph.depth_limited_search(start, depth_limit)
+
+print("\nNodes visited within depth limit:")
+for node, cost in visited_nodes:
+    print(f"Node: {node}, Cost: {cost}")
