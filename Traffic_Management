@@ -1,0 +1,38 @@
+import random
+import time
+class TrafficLight:
+    def __init__(self, intersection_id):
+        self.intersection_id = intersection_id
+        self.state = "RED"  
+        self.timer = 30  
+    def change_state(self, new_state, new_timer):
+        self.state = new_state
+        self.timer = new_timer
+        print(f"Intersection {self.intersection_id}: Light changed to {self.state} for {self.timer} seconds")
+class TrafficManagementAgent:
+    def __init__(self, intersections):
+        self.traffic_lights = {i: TrafficLight(i) for i in intersections}
+    def get_traffic_data(self):
+        # Simulate real-time traffic data
+        return {i: random.randint(1, 100) for i in self.traffic_lights.keys()} 
+    def decide_signal_timing(self, traffic_data):
+        signal_timings = {}
+        for intersection, congestion in traffic_data.items():
+            if congestion > 70:
+                signal_timings[intersection] = ("GREEN", 40) 
+            elif congestion < 30:
+                signal_timings[intersection] = ("RED", 40)  
+            else:
+                signal_timings[intersection] = ("YELLOW", 5)  
+        return signal_timings
+    def control_traffic(self):
+        while True:
+            traffic_data = self.get_traffic_data()
+            signal_timings = self.decide_signal_timing(traffic_data)
+            for intersection, (state, timer) in signal_timings.items():
+                self.traffic_lights[intersection].change_state(state, timer)
+            time.sleep(10) 
+if __name__ == "__main__":
+    intersections = [1, 2, 3,] 
+    agent = TrafficManagementAgent(intersections)
+    agent.control_traffic()
