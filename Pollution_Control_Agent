@@ -1,1 +1,59 @@
+import random
+class PollutionControlAgent:
+    def __init__(self):
+        self.strategies = ["Increase public transport availability","Implement odd-even vehicle rule",
+            "Shut down industrial activities temporarily","Enhance air purification measures","Promote remote work policies"]
+
+    def get_pollution_level(self):
+        return random.randint(50, 300) 
+    def get_weather_conditions(self):
+        return random.choice(["Sunny", "Windy", "Rainy", "Foggy"])
+    def get_health_risk(self, pollution_level):
+        if pollution_level < 100:
+            return "Low"
+        elif pollution_level < 200:
+            return "Moderate"
+        else:
+            return "High"
+    
+    def calculate_utility(self, strategy, pollution_level, weather, health_risk):
+        utility_scores = {
+            "Increase public transport availability": 8,
+            "Implement odd-even vehicle rule": 7,
+            "Shut down industrial activities temporarily": 9,
+            "Enhance air purification measures": 6,
+            "Promote remote work policies": 7,
+        }
+        
+        if pollution_level > 250:
+            utility_scores["Shut down industrial activities temporarily"] += 2
+            utility_scores["Enhance air purification measures"] += 1
+        if weather == "Windy":
+            utility_scores["Enhance air purification measures"] -= 2
+        elif weather == "Rainy":
+            utility_scores["Implement odd-even vehicle rule"] -= 1
+        
+        if health_risk == "High":
+            utility_scores["Promote remote work policies"] += 2
+        return utility_scores[strategy]
+    
+    def select_best_strategy(self):
+        pollution_level = self.get_pollution_level()
+        weather = self.get_weather_conditions()
+        health_risk = self.get_health_risk(pollution_level)
+        output = (
+            f"\n Pollution Control Report\n"
+            f"Pollution Level: {pollution_level} AQI\n"
+            f"Weather Conditions: {weather}\n"
+            f"Health Risk: {health_risk}\n"
+        )
+        
+        best_strategy = max(self.strategies, key=lambda s: self.calculate_utility(s, pollution_level, weather, health_risk))
+        output += f"Recommended Strategy: {best_strategy}\n"
+        return output
+
+if __name__ == "__main__":
+    agent = PollutionControlAgent()
+    for _ in range(3):
+        print(agent.select_best_strategy())
 
