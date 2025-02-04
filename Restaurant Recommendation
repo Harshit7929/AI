@@ -1,1 +1,41 @@
 
+import random
+restaurants = [
+    {"name": "Spice Villa", "cuisine": "Indian", "location": "Downtown", "price_range": "Medium", "rating": 4.5},
+    {"name": "Sushi Delight", "cuisine": "Japanese", "location": "Uptown", "price_range": "High", "rating": 4.8},
+    {"name": "Pasta Paradise", "cuisine": "Italian", "location": "Midtown", "price_range": "Low", "rating": 4.2},
+    {"name": "Taco Fiesta", "cuisine": "Mexican", "location": "Downtown", "price_range": "Low", "rating": 4.0},
+    {"name": "Burger Hub", "cuisine": "Fast Food", "location": "Suburbs", "price_range": "Medium", "rating": 3.8},
+    {"name": "Curry Express", "cuisine": "Indian", "location": "Uptown", "price_range": "High", "rating": 4.6},
+    {"name": "Pizza Heaven", "cuisine": "Italian", "location": "Downtown", "price_range": "Medium", "rating": 4.3}
+]
+def get_user_preferences():
+    """Get user input for cuisine type, location, and budget."""
+    print("\nWelcome to Restaurant Recommender!")
+    cuisine = input("Enter preferred cuisine (Indian, Italian, Japanese, etc.): ").strip()
+    location = input("Enter preferred location (Downtown, Uptown, Midtown, Suburbs): ").strip()
+    budget = input("Enter budget (Low, Medium, High): ").strip()
+    return cuisine, location, budget
+def filter_restaurants(cuisine, location, budget):
+    """Filter restaurants based on user preferences."""
+    return [
+        r for r in restaurants 
+        if r["cuisine"].lower() == cuisine.lower() and
+           r["location"].lower() == location.lower() and
+           r["price_range"].lower() == budget.lower()
+    ]
+def recommend_restaurant(filtered_restaurants):
+    """Recommend a restaurant based on the best rating."""
+    if not filtered_restaurants:
+        return "No matching restaurants found. Try adjusting your preferences!"
+    best_restaurant = max(filtered_restaurants, key=lambda r: r["rating"])
+    return f"We recommend: {best_restaurant['name']} ({best_restaurant['cuisine']}, {best_restaurant['location']})
+    \nPrice Range: {best_restaurant['price_range']}\nRating: {best_restaurant['rating']}/5"
+def main():
+    """Main function to run the restaurant recommender."""
+    cuisine, location, budget = get_user_preferences()
+    filtered_restaurants = filter_restaurants(cuisine, location, budget)
+    recommendation = recommend_restaurant(filtered_restaurants)
+    print("\n" + recommendation)
+if __name__ == "__main__":
+    main()
