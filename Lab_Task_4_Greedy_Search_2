@@ -1,0 +1,42 @@
+graph = [
+    [0, 1, 0, 0, 0, 10], 
+    [0, 0, 2, 1, 0, 0],   
+    [0, 0, 0, 0, 5, 0],   
+    [0, 0, 0, 0, 3, 4],   
+    [0, 0, 0, 0, 0, 2],   
+    [0, 0, 0, 0, 0, 0]   
+]
+heuristics = {'S': 5, 'A': 3, 'B': 4, 'C': 2, 'D': 6, 'G': 0}
+nodes = ['S', 'A', 'B', 'C', 'D', 'G']
+def greedy_best_first_search(start, goal):
+    start = start.upper()
+    goal = goal.upper()
+    if start not in nodes or goal not in nodes:
+        print("Invalid start or goal node! Please enter valid node names.")
+        return
+    start_index = nodes.index(start)
+    goal_index = nodes.index(goal)
+    open_list = [(start_index, [start])]
+    visited = set()
+    while open_list:
+        min_index = 0
+        min_heuristic = heuristics[nodes[open_list[0][0]]]
+        for i in range(1, len(open_list)):
+            node_index = open_list[i][0]
+            if heuristics[nodes[node_index]] < min_heuristic:
+                min_index = i
+                min_heuristic = heuristics[nodes[node_index]]
+        current_index, path = open_list.pop(min_index)
+        current_node = nodes[current_index]
+        print(f"Visiting: {current_node}")
+        if current_node == goal:
+            print("\nGoal Reached! Path:", " -> ".join(path))
+            return
+        visited.add(current_index)
+        for neighbor_index, cost in enumerate(graph[current_index]):
+            if cost > 0 and neighbor_index not in visited:
+                open_list.append((neighbor_index, path + [nodes[neighbor_index]]))
+    print("No path found!")
+start = input("Enter the Start Node: ").strip().upper()
+goal = input("Enter the Goal Node: ").strip().upper()
+greedy_best_first_search(start, goal)
