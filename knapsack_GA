@@ -1,0 +1,52 @@
+import random
+max_weight = int(input("Enter the knapsack capacity: "))
+n = int(input("Enter the number of items: "))
+weights = []
+values = []
+for i in range(n):
+    w = int(input(f"Enter weight of item {i+1}: "))
+    v = int(input(f"Enter value of item {i+1}: "))
+    weights.append(w)
+    values.append(v)
+pop_size = int(input("Enter population size: "))
+num_generations = int(input("Enter number of generations: "))
+mutation_probability = float(input("Enter mutation rate (e.g., 0.1): "))
+def create_solution():
+    return [random.choice([0, 1]) for _ in range(n)]
+def initialize_population():
+    return [create_solution() for _ in range(pop_size)]
+def evaluate_fitness(solution):
+    total_value = sum(solution[i] * values[i] for i in range(n))
+    total_weight = sum(solution[i] * weights[i] for i in range(n))
+    return total_value if total_weight <= max_weight else 0
+def select_parents(population):
+    fitness_scores = [evaluate_fitness(sol) for sol in population]
+    parents = random.choices(population, weights=fitness_scores, k=pop_size)
+    return parents
+def crossover(parent1, parent2):
+    point1, point2 = sorted(random.sample(range(n), 2))
+    child1 = parent1[:point1] + parent2[point1:point2] + parent1[point2:]
+    child2 = parent2[:point1] + parent1[point1:point2] + parent2[point2:]
+    return child1, child2
+def mutate(solution):
+    index = random.randint(0, n - 1)
+    solution[index] = 1 - solution[index]
+def apply_mutation(population):
+    for solution in population:
+        if random.random() < mutation_probability:
+            mutate(solution)
+def run_genetic_algorithm():
+    population = initialize_population()
+    for _ in range(num_generations):
+        parents = select_parents(population)
+        next_generation = []
+        for i in range(0, pop_size - 1, 2):
+            child1, child2 = crossover(parents[i], parents[i + 1])
+            next_generation.extend([child1, child2])
+        apply_mutation(next_generation)
+        population = next_generation
+    best_solution = max(population, key=evaluate_fitness)
+    return best_solution, evaluate_fitness(best_solution)
+best_solution, best_value = run_genetic_algorithm()
+print("Best solution (selected items):", best_solution)
+print("Maximum value in the knapsack:", best_value)
