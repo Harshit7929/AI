@@ -1,0 +1,38 @@
+import random
+target_string = input("Enter the target string: ")
+population_size = int(input("Enter population size: "))
+mutation_rate = float(input("Enter mutation rate (0-1): "))
+genes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890,.-;:_!\"#%&/()=?@${[]}"
+def create_individual(length):
+    return "".join(random.choice(genes) for _ in range(length))
+def calculate_fitness(individual):
+    return sum(1 for a, b in zip(individual, target_string) if a != b)
+def mutate(individual):
+    return "".join(
+        random.choice(genes) if random.random() < mutation_rate else char for char in individual
+    )
+def crossover(parent1, parent2):
+    point = random.randint(0, len(target_string) - 1)
+    return parent1[:point] + parent2[point:]
+def select_parents(population):
+    return random.sample(sorted(population, key=lambda x: x[1]), 2)
+def main():
+    generation = 1
+    population = [(create_individual(len(target_string)), float("inf")) for _ in range(population_size)]
+    while True:
+        population = [(ind, calculate_fitness(ind)) for ind, _ in population]
+        population.sort(key=lambda x: x[1])
+        if population[0][1] == 0:
+            print(f"Generation {generation}: {population[0][0]} (Perfect match!)")
+            break
+        new_population = [population[0]] 
+        while len(new_population) < population_size:
+            p1, p2 = select_parents(population)
+            child = crossover(p1[0], p2[0])
+            child = mutate(child)
+            new_population.append((child, calculate_fitness(child)))
+        population = new_population
+        print(f"Generation {generation}: {population[0][0]} | Fitness: {population[0][1]}")
+        generation += 1
+if __name__ == "__main__":
+    main()
