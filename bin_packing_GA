@@ -1,0 +1,70 @@
+import random
+num_items = int(input("Enter the number of items: "))
+bin_capacity = int(input("Enter the bin capacity: "))
+items = list(map(int, input(f"Enter the sizes of {num_items} items: ").split()))
+population_size = int(input("Enter the population size: "))
+mutation_rate = float(input("Enter the mutation rate (0 to 1): "))
+generations = int(input("Enter the number of generations: "))
+def generate_chromosome():
+    bins = []
+    for item in items:
+        placed = False
+        for b in bins:
+            if sum(b) + item <= bin_capacity:
+                b.append(item)
+                placed = True
+                break
+        if not placed:
+            bins.append([item])
+    return bins
+population = [generate_chromosome() for _ in range(population_size)]
+def fitness(chromosome):
+    return len(chromosome)
+def select():
+    sorted_pop = sorted(population, key=fitness)
+    return sorted_pop[:2]
+def crossover(parent1, parent2):
+    point = random.randint(1, min(len(parent1), len(parent2)) - 1)
+    child1 = parent1[:point] + parent2[point:]
+    child2 = parent2[:point] + parent1[point:]
+    return repair(child1), repair(child2)
+def repair(chromosome):
+    bins = []
+    for bin_items in chromosome:
+        for item in bin_items:
+            placed = False
+            for b in bins:
+                if sum(b) + item <= bin_capacity:
+                    b.append(item)
+                    placed = True
+                    break
+            if not placed:
+                bins.append([item])
+    return bins
+def mutate(chromosome):
+    if random.random() < mutation_rate:
+        item = random.choice(items)
+        src_bin = random.choice(chromosome)
+        if item in src_bin:
+            src_bin.remove(item)
+            placed = False
+            for b in chromosome:
+                if sum(b) + item <= bin_capacity:
+                    b.append(item)
+                    placed = True
+                    break
+            if not placed:
+                chromosome.append([item])
+    return repair(chromosome)
+for _ in range(generations):
+    new_population = []
+    for _ in range(population_size // 2):
+        p1, p2 = select()
+        c1, c2 = crossover(p1, p2)
+        new_population.extend([mutate(c1), mutate(c2)])
+    population = new_population
+best_solution = min(population, key=fitness)
+print("\nOptimal Bin Packing Solution:")
+for i, b in enumerate(best_solution):
+    print(f"Bin {i+1}: {b}")
+print("Minimum Number of Bins Used:", fitness(best_solution))
