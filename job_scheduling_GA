@@ -1,0 +1,46 @@
+import random
+
+num_jobs = int(input("Enter the number of jobs: "))
+num_machines = int(input("Enter the number of machines: "))
+processing_times = list(map(int, input(f"Enter processing times for {num_jobs} jobs: ").split()))
+population_size = int(input("Enter the population size: "))
+mutation_rate = float(input("Enter the mutation rate (0 to 1): "))
+generations = int(input("Enter the number of generations: "))
+
+def generate_chromosome():
+    return [random.randint(0, num_machines - 1) for _ in range(num_jobs)]
+population = [generate_chromosome() for _ in range(population_size)]
+
+def fitness(chromosome):
+    machine_loads = [0] * num_machines
+    for job, machine in enumerate(chromosome):
+        machine_loads[machine] += processing_times[job]
+    return max(machine_loads)
+
+def select():
+    sorted_pop = sorted(population, key=fitness)
+    return sorted_pop[:2]
+
+def crossover(parent1, parent2):
+    point1, point2 = sorted(random.sample(range(num_jobs), 2))
+    child1 = parent1[:point1] + parent2[point1:point2] + parent1[point2:]
+    child2 = parent2[:point1] + parent1[point1:point2] + parent2[point2:]
+    return child1, child2
+
+def mutate(chromosome):
+    if random.random() < mutation_rate:
+        index = random.randint(0, num_jobs - 1)
+        chromosome[index] = random.randint(0, num_machines - 1)
+    return chromosome
+
+for _ in range(generations):
+    new_population = []
+    for _ in range(population_size // 2):
+        p1, p2 = select()
+        c1, c2 = crossover(p1, p2)
+        new_population.extend([mutate(c1), mutate(c2)])
+    population = new_population
+
+best_schedule = min(population, key=fitness)
+print("\nOptimal Job Schedule:", best_schedule)
+print("Minimum Completion Time:", fitness(best_schedule))
