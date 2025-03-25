@@ -1,0 +1,132 @@
+import heapq
+import networkx as nx
+import matplotlib.pyplot as plt
+
+# Graph representation as adjacency list
+graph = {
+    'A': [('B', 4), ('C', 5)],
+    'B': [('A', 4), ('C', 11), ('D', 9), ('E', 7)],
+    'C': [('A', 5), ('B', 11), ('E', 3)],
+    'D': [('B', 9), ('E', 13), ('F', 2)],
+    'E': [('B', 7), ('C', 3), ('D', 13), ('F', 6)],
+    'F': [('D', 2), ('E', 6)]
+}
+
+# 1️⃣ Shortest Path using Dijkstra's Algorithm
+def dijkstra(graph, start, target):
+    heap = [(0, start)]
+    distances = {node: float('inf') for node in graph}
+    distances[start] = 0
+    parent = {}
+
+    while heap:
+        current_distance, current_node = heapq.heappop(heap)
+
+        if current_node == target:
+            break
+
+        for neighbor, weight in graph[current_node]:
+            distance = current_distance + weight
+            if distance < distances[neighbor]:
+                distances[neighbor] = distance
+                parent[neighbor] = current_node
+                heapq.heappush(heap, (distance, neighbor))
+
+    path = []
+    node = target
+    while node in parent:
+        path.append(node)
+        node = parent[node]
+    path.append(start)
+    path.reverse()
+
+    return distances[target], path
+
+# 2️⃣ Breadth-First Search (BFS)
+def bfs(graph, start):
+    queue = [start]
+    visited = set([start])
+    bfs_order = []
+
+    while queue:
+        node = queue.pop(0)
+        bfs_order.append(node)
+
+        for neighbor, _ in graph[node]:
+            if neighbor not in visited:
+                visited.add(neighbor)
+                queue.append(neighbor)
+
+    return bfs_order
+
+# 3️⃣ Depth-First Search (DFS)
+def dfs(graph, start, visited=None):
+    if visited is None:
+        visited = set()
+    visited.add(start)
+    dfs_order.append(start)
+
+    for neighbor, _ in graph[start]:
+        if neighbor not in visited:
+            dfs(graph, neighbor, visited)
+
+# 4️⃣ Cycle Detection using DFS
+def is_cyclic(graph):
+    def dfs(node, parent):
+        visited.add(node)
+        for neighbor, _ in graph[node]:
+            if neighbor not in visited:
+                if dfs(neighbor, node):
+                    return True
+            elif parent != neighbor:
+                return True
+        return False
+
+    visited = set()
+    for node in graph:
+        if node not in visited:
+            if dfs(node, None):
+                return True
+    return False
+
+# 5️⃣ Graph Coloring (Greedy Algorithm)
+def graph_coloring(graph):
+    colors = {}
+    available_colors = ['red', 'blue', 'green']
+
+    for node in graph:
+        neighbor_colors = {colors[neighbor] for neighbor, _ in graph[node] if neighbor in colors}
+        for color in available_colors:
+            if color not in neighbor_colors:
+                colors[node] = color
+                break
+
+    return colors
+
+# Run all algorithms
+shortest_distance, shortest_path = dijkstra(graph, 'A', 'F')
+bfs_order = bfs(graph, 'A')
+dfs_order = []
+dfs(graph, 'A')
+has_cycle = is_cyclic(graph)
+node_colors = graph_coloring(graph)
+
+# Print results
+print("Shortest Path:", shortest_path, "Distance:", shortest_distance)
+print("BFS Order:", bfs_order)
+print("DFS Order:", dfs_order)
+print("Cycle Detected:", has_cycle)
+print("Node Colors:", node_colors)
+
+# Graph Visualization
+G = nx.Graph()
+for node in graph:
+    for neighbor, weight in graph[node]:
+        G.add_edge(node, neighbor, weight=weight)
+
+pos = nx.spring_layout(G)
+node_color_map = [node_colors.get(node, 'gray') for node in G.nodes()]  # Default color for safety
+nx.draw(G, pos, with_labels=True, node_color=node_color_map, edge_color='black', node_size=2000, font_size=12)
+labels = nx.get_edge_attributes(G, 'weight')
+nx.draw_networkx_edge_labels(G, pos, edge_labels=labels)
+plt.show()
