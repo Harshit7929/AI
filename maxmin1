@@ -1,0 +1,28 @@
+def minimax():
+    # Leaf node values
+    C1, C2, C3 = 12, 10, 3
+    C4, C5, C6 = 5, 8, 10
+    C7, C8, C9 = 11, 2, 12
+
+    # Min layer (B nodes)
+    B1 = min(C1, C2, C3)  
+    B2 = min(C4, C5, C6)  
+    B3 = min(C7, C8, C9)  
+
+    # Max layer (A node)
+    A = max(B1, B2, B3)  
+
+    # Find the optimal path
+    if A == B1:
+        chosen_B = "B1"
+        chosen_C = min([(C1, "C1"), (C2, "C2"), (C3, "C3")])[1]
+    elif A == B2:
+        chosen_B = "B2"
+        chosen_C = min([(C4, "C4"), (C5, "C5"), (C6, "C6")])[1]
+    else:
+        chosen_B = "B3"
+        chosen_C = min([(C7, "C7"), (C8, "C8"), (C9, "C9")])[1]
+
+    print(f"Optimal Path: A → {chosen_B} → {chosen_C} (Value: {A})")
+
+minimax()
