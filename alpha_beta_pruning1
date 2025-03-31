@@ -1,0 +1,66 @@
+class Node:
+    def __init__(self, name, value=None):
+        self.name = name
+        self.value = value
+        self.children = []
+    def add_child(self, child):
+        self.children.append(child)
+def minimax(node, depth, alpha, beta, maximizing_player, pruned_nodes):
+    if depth == 0 or not node.children:
+        return node.value, [node.name]
+    optimal_path = []
+    if maximizing_player:
+        max_eval = float('-inf')
+        for child in node.children:
+            eval, path = minimax(child, depth - 1, alpha, beta, False, pruned_nodes)
+            if eval > max_eval:
+                max_eval = eval
+                optimal_path = [node.name] + path
+            alpha = max(alpha, eval)
+            if beta <= alpha:
+                for sibling in node.children[node.children.index(child) + 1:]:
+                    pruned_nodes.append(sibling.name)
+        return max_eval, optimal_path
+    else:
+        min_eval = float('inf')
+        for i, child in enumerate(node.children):
+            eval, path = minimax(child, depth - 1, alpha, beta, True, pruned_nodes)
+            if eval < min_eval:
+                min_eval = eval
+                optimal_path = [node.name] + path
+            beta = min(beta, eval)
+            if beta <= alpha:
+                for sibling in node.children[i + 1:]:
+                    pruned_nodes.append(sibling.name)
+                break 
+        return min_eval, optimal_path
+A = Node("A")
+B1 = Node("B1")
+B2 = Node("B2")
+B3 = Node("B3")
+C1 = Node("C1", 12)
+C2 = Node("C2", 10)
+C3 = Node("C3", 3)  
+C4 = Node("C4", 5)  
+C5 = Node("C5", 8)  
+C6 = Node("C6", 10)  
+C7 = Node("C7", 11)
+C8 = Node("C8", 2)   
+C9 = Node("C9", 12) 
+B1.add_child(C1)
+B1.add_child(C2)
+B1.add_child(C3)  
+B2.add_child(C4)
+B2.add_child(C5)
+B2.add_child(C6)
+B3.add_child(C7)
+B3.add_child(C8)  
+B3.add_child(C9)  
+A.add_child(B1)
+A.add_child(B2)
+A.add_child(B3)
+pruned_nodes = []
+optimal_value, optimal_path = minimax(A, 2, float('-inf'), float('inf'), True, pruned_nodes)
+print(f"Optimal Value at A: {optimal_value}")
+print(f"Optimal Path: {' → '.join(optimal_path)}")
+print(f"Pruned Nodes: {', '.join(pruned_nodes) if pruned_nodes else 'None'}")
