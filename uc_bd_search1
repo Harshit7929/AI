@@ -1,0 +1,65 @@
+from collections import deque
+import heapq
+def uniform_cost_search(graph, start, goal):
+    priority_queue = [(0, start, [start])]
+    visited = {}
+    while priority_queue:
+        cost, node, path = heapq.heappop(priority_queue)
+        if node in visited and visited[node] <= cost:
+            continue
+        visited[node] = cost
+        if node == goal:
+            return path, cost
+        for neighbor, weight in graph.get(node, []):
+            if neighbor not in visited or cost + weight < visited[neighbor]:
+                heapq.heappush(priority_queue, (cost + weight, neighbor, path + [neighbor]))
+    return [], float("inf")
+def bidirectional_ucs(graph, start, goal):
+    if start == goal:
+        return [start]
+    forward_queue = [(0, start, [start])]
+    backward_queue = [(0, goal, [goal])]
+    forward_visited = {}
+    backward_visited = {}
+    best_meeting_node = None
+    best_cost = float("inf")
+    best_path = []
+    while forward_queue and backward_queue:
+        if forward_queue:
+            f_cost, f_node, f_path = heapq.heappop(forward_queue)
+            forward_visited[f_node] = (f_cost, f_path)
+            if f_node in backward_visited:
+                total_cost = f_cost + backward_visited[f_node][0]
+                if total_cost < best_cost:
+                    best_cost = total_cost
+                    best_meeting_node = f_node
+                    best_path = f_path + backward_visited[f_node][1][::-1][1:]
+            for neighbor, weight in graph.get(f_node, []):
+                if neighbor not in forward_visited:
+                    heapq.heappush(forward_queue, (f_cost + weight, neighbor, f_path + [neighbor]))
+        if backward_queue:
+            b_cost, b_node, b_path = heapq.heappop(backward_queue)
+            backward_visited[b_node] = (b_cost, b_path)
+            if b_node in forward_visited:
+                total_cost = b_cost + forward_visited[b_node][0]
+                if total_cost < best_cost:
+                    best_cost = total_cost
+                    best_meeting_node = b_node
+                    best_path = forward_visited[b_node][1] + b_path[::-1][1:]
+            for neighbor, weight in graph.get(b_node, []):
+                if neighbor not in backward_visited:
+                    heapq.heappush(backward_queue, (b_cost + weight, neighbor, b_path + [neighbor]))
+    return best_path if best_path else []
+graph = {
+    'A': [('B', 6), ('D', 1)],
+    'B': [('A', 6), ('C', 5), ('E', 2), ('D', 2)],
+    'C': [('B', 5), ('E', 5)],
+    'D': [('A', 1), ('B', 2), ('E', 1)],
+    'E': [('B', 2), ('C', 5), ('D', 1)],
+}
+start = 'A'
+goal = 'C'
+ucs_path, ucs_cost = uniform_cost_search(graph, start, goal)
+bds_path = bidirectional_ucs(graph, start, goal)
+print("Optimal Path using UCS:", ucs_path, "with cost:", ucs_cost)
+print("Path using Bidirectional UCS:", bds_path)
